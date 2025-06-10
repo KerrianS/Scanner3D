@@ -1,28 +1,5 @@
 node_modules
-
-# Output
-.output
-.vercel
-.netlify
-.wrangler
-/.svelte-kit
-/build
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Env
+# Keep environment variables out of version control
 .env
-.env.*
-!.env.example
-!.env.test
 
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-/../generated/prisma
-
-docker-compose.yml
-
+/generated/prisma
