@@ -1,47 +1,68 @@
 <script lang="ts">
-  let email = '';
-  let password = '';
-  let confirmPassword = '';
-  let error = '';
-  let success = false;
+import emailjs from 'emailjs-com';
+let email = '';
+let password = '';
+let code = '';
+let isCodeSent = false;
+let message = '';
 
-  async function handleSubmit() {
-    if (password !== confirmPassword) {
-      error = "Les mots de passe ne correspondent pas.";
-      return;
-    }
+const sendCode = async () => {
 
-    const res = await fetch('/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+const res = await fetch('/api/signup/send-code', {
 
-    const data = await res.json();
+method: 'POST',
+body: JSON.stringify({ email, password }),
+headers: { 'Content-Type': 'application/json' }
+});
 
-    if (!res.ok) {
-      error = data.error || "Erreur lors de l'inscription.";
-    } else {
-      success = true;
-      error = '';
-    }
-  }
+const data = await res.json();
+
+if (data.success) {
+
+await emailjs.send(
+import.meta.env.VITE_EMAILJS_SERVICE_ID,
+import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+{
+to_email: email,
+code: data.code,
+},
+import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+);
+
+isCodeSent = true;
+message = 'Code envoyé par email.';
+} else {
+message = data.error || 'Erreur lors de l’envoi.';
+}
+};
+
+const verifyCode = async () => {
+const res = await fetch('/api/signup/verify-code', {
+method: 'POST',
+body: JSON.stringify({ email, code }),
+headers: { 'Content-Type': 'application/json' }
+});
+const data = await res.json();
+message = data.success ? 'Inscription réussie !' : data.error;
+};
+
 </script>
 
-<main class="flex flex-col items-center justify-center min-h-screen">
-  <h1 class="text-2xl mb-4">Créer un compte</h1>
-  <form on:submit|preventDefault={handleSubmit} class="flex flex-col w-64 gap-2">
-    <input type="email" placeholder="Email" bind:value={email} required />
-    <input type="password" placeholder="Mot de passe" bind:value={password} required />
-    <input type="password" placeholder="Confirmer le mot de passe" bind:value={confirmPassword} required />
-    
-    {#if error}
-      <p class="text-red-600 text-sm">{error}</p>
-    {/if}
-    {#if success}
-      <p class="text-green-600 text-sm">Inscription réussie !</p>
-    {/if}
-    
-    <button type="submit" class="bg-blue-600 text-white py-2 rounded">S'inscrire</button>
-  </form>
-</main>
+
+
+{#if !isCodeSent}
+<form on:submit|preventDefault={sendCode}>
+<input bind:value={email} type="email" placeholder="Email" />
+<input bind:value={password} type="password" placeholder="Mot de passe" />
+<button type="submit">Envoyer le code</button>
+</form>
+
+{:else}
+<form on:submit|preventDefault={verifyCode}>
+<input bind:value={code} placeholder="Code reçu par email" />
+<button type="submit">Valider le code</button>
+</form>
+{/if}
+
+<p>{message}</p>
+
