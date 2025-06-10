@@ -1,7 +1,41 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-prisma
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+prisma/
+*.sql
 create_table.sql
-.gitignore
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Logs
+logs/
+*.log
+
+# Docker
+docker-compose.yml
+docker-compose.override.yml
